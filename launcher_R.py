@@ -14,4 +14,6 @@ if os.path.exists(tar_fil):
 		cwd = os.getcwd(),
 		start_new_session = True
 		)
+	
+print("end launcher")
 

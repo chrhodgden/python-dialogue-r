@@ -1,3 +1,3 @@
 msg <- "hello world"
 
-print(msg)
+cat(msg, '\n')

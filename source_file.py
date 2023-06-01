@@ -28,17 +28,14 @@ def recv_msg(conn):
 	msg = msg.decode(FORMAT)
 	return msg
 
-def terminate_connection(conn):
-	conn.close()
-
-
 msg = "Initializing Client - Python"
 display_msg(msg)
 
 msg = "Initialized Client - Python"
 send_msg(CONN, msg)
 
-msg = recv_msg(CONN)
-display_msg(msg)
+while msg != '!DISCONNECT':
+	msg = recv_msg(CONN)
+	display_msg(msg)
 
-terminate_connection(CONN)
+CONN.close()

@@ -1,25 +1,7 @@
-# script_launchers
+# dialoguer package
 
-Code to run in either Python or R run scripts in either Python or R
+Python package that can execute and import variables from a launched and active R environment.
 
-## Next Package Design
+## Under Development using Test-Driven-Development
 
-Looks like we are ready to combine the functionalities. We need to define what the objectives are
-
-## Considering only Python as "Master" and R as "Slave"
-
-Functionalities
-    - Execute R script
-    - Thread R script
-    - Dialogue R script
-        - Parallel and/or Continuous?
-    - Import R Data
-
-## Considering only R as "Master" and Python as "Slave"
-
-Functionalities
-    - Execute Python script
-    - Dialogue Python script?
-    - Import Python Data
-
-Because R does not have native threading
+Using the Python unittest module.

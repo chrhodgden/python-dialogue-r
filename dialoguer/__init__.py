@@ -25,6 +25,7 @@ class Dialogue:
 	def execute_context_script(self):
 		context_file = __file__.replace('__init__.py', 'context_script.r')
 
+		# I believe it is possible to pass the R target file path as a system argument.
 		subprocess.run(
 			f'Rscript {context_file}',
 			cwd = os.getcwd(),

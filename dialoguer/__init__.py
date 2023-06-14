@@ -63,6 +63,8 @@ class Dialogue:
 		bin_data = binary_conversion.convert_to_binary(bin_data)
 		self.conn.send(bin_data)
 
+	# Could add an optional boolean expect_data_type argument that receives data type as string.
+	# should there be an expected data type arg that specifies a known data type?
 	def recv(self):
 		data = self.conn.recv(HEADER)
 		while data == b'\x00':

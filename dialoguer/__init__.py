@@ -54,6 +54,8 @@ class Dialogue:
 		if wait: self._open.run()
 		else: self._open.start()
 
+	# Could I add an optional data_type argument that sends the data type as string?
+	# Would be used for steps for when data_type is expected by R.
 	def send(self, data):
 		# I should probably put this reversal in the convert_to_binary method.
 		bin_data = reversed(data)

@@ -2,13 +2,13 @@ import os
 import subprocess
 import threading
 import socket
+from . import binary_conversion
 
-HEADER = 256
+HEADER = 2048
 PORT = 6011
 SERVER = 'localhost'
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
-DISCONNECT_MESSAGE = b'!DISSCONNECT'
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
@@ -44,28 +44,31 @@ class Dialogue:
 		self._connect.join()
 
 		self.send(self.file_path)
-		msg = self.recv()
-		self.active = (msg == b'TRUE')
+		data = self.recv()
+		data = binary_conversion.convert_from_binary(data, type('s'))
+		self.active = (data == 'TRUE')
 	
 	def open(self, wait = True):
 		self._open = threading.Thread(target=self.launch_and_connect)
 		if wait: self._open.run()
 		else: self._open.start()
 
-	def send(self, msg):
-		data = bytes(msg, FORMAT)
-		data += b' ' * (HEADER - len(data))
-		self.conn.send(data)
+	def send(self, data):
+		bin_data = reversed(data)
+		bin_data = "".join(bin_data)
+		bin_data = binary_conversion.convert_to_binary(bin_data)
+		self.conn.send(bin_data)
 
 	def recv(self):
-		msg = self.conn.recv(HEADER).strip()
-		while msg == b'\x00':
-			msg = self.conn.recv(HEADER).strip()
-		return msg
+		data = self.conn.recv(HEADER)
+		while data == b'\x00':
+			data = self.conn.recv(HEADER)			
+		return data
 
 	def import_variable(self, var_name):
 		self.send(var_name)
 		val = self.recv()
+		val = binary_conversion.convert_from_binary(val, type('s'))
 		return val
 
 	def evaluate_expression(self, expr):

@@ -2,7 +2,7 @@ import unittest
 import dialoguer
 
 
-class TestEmployee(unittest.TestCase):
+class TestImportVariable(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
@@ -22,8 +22,8 @@ class TestEmployee(unittest.TestCase):
 	def test_import_variable(self):
 		msg_1 = self.src_fil_r.import_variable('msg_1')
 		msg_2 = self.src_fil_r.import_variable('msg_2')
-		self.assertEqual(msg_1, b'Initializing Client - R')
-		self.assertEqual(msg_2, b'Initialized Client - R')
+		self.assertEqual(msg_1, 'Initializing Client - R')
+		self.assertEqual(msg_2, 'Initialized Client - R')
 
 
 if __name__ == '__main__':

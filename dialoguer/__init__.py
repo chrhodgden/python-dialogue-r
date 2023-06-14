@@ -55,6 +55,7 @@ class Dialogue:
 		else: self._open.start()
 
 	def send(self, data):
+		# I should probably put this reversal in the convert_to_binary method.
 		bin_data = reversed(data)
 		bin_data = "".join(bin_data)
 		bin_data = binary_conversion.convert_to_binary(bin_data)

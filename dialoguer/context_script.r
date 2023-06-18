@@ -60,6 +60,7 @@ send <- function(conn, data) {
 }
 
 # Add optional expect_data_type argument that will receive and convert data type as string
+# should there be an expected data type arg that specifies a known data type?
 recv <- function(conn, silent = TRUE) {
 	if (silent) {
 		suppressWarnings(data <- readBin(conn, "raw", HEADER))
@@ -81,6 +82,7 @@ file_path <- recv(con)
 file_path <- convert_from_binary(file_path, "character")
 
 #load target file
+# need to learn how to receive path as system argument.
 source(file_path)
 
 confirm <- TRUE

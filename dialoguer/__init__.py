@@ -13,6 +13,8 @@ FORMAT = 'utf-8'
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
+# could there be a defined sub-class that has all the sockets connection functions?
+# then the dialogue class launches and connects and loops
 class Dialogue:
 	def __init__(self, file_name):
 		self.file_name = file_name

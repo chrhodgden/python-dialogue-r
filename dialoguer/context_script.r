@@ -54,10 +54,12 @@ convert_to_binary <- function(data) {
 	return(bin_data)
 }
 
+# Add optional data_type argument that sends data_type as string
 send <- function(conn, data) {
 	writeBin(data, conn)
 }
 
+# Add optional expect_data_type argument that will receive and convert data type as string
 recv <- function(conn, silent = TRUE) {
 	if (silent) {
 		suppressWarnings(data <- readBin(conn, "raw", HEADER))

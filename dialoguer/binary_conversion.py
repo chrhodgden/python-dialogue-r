@@ -58,13 +58,3 @@ def convert_from_binary(bin_data, cls_type):
 		data = int(data, 2)
 
 	return data
-
-if __name__ == '__main__':
-	print(convert_to_binary(3))	
-	print(convert_to_binary('3'))
-	
-	int_3 = b'\x00\x00\x00\x00\x00\x00\x01\x01'
-	str_3 = b'\x00\x00\x01\x01\x00\x00\x01\x01'
-
-	print(convert_from_binary(int_3, cls_int))	
-	print(convert_from_binary(str_3, cls_str))

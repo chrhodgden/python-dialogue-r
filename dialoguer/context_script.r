@@ -29,59 +29,56 @@ display_msg <- function(msg) {
     )
 }
 
-add_missing_bits <- function(bin_data, base = 8) {
-	missing_bits <- length(bin_data) %% base
+add_missing_bits <- function(bits, base = 8) {
+	missing_bits <- length(bits) %% base
 	if (missing_bits > 0) {
 		missing_bits <- rep(as.raw(00), times = base - missing_bits)
-		bin_data <- c(bin_data, missing_bits)
+		bits <- c(bits, missing_bits)
 	}
-	return(bin_data)
+	return(bits)
 }
 
-convert_from_binary <- function(bin_data, to_type) {
-	data <- NA
-	bin_data <- add_missing_bits(bin_data)
-	if (to_type == "character") {
-		data <- packBits(bin_data, "raw")
-		data <- rawToChar(data)
-	} else if (to_type == "integer") {
-		data <- packBits(bin_data, "raw")
-		data <- as.integer(data)
+bin_conv <- function(data, data_type_name = NA) {
+	conv_data <- NA
+	# convert to binary
+	if (is.character(data) && is.na(data_type_name)) {
+		conv_data <- charToRaw(data)
+		conv_data <- rawToBits(conv_data)
+	} else if (is.integer(data) && is.na(data_type_name)) {
+		conv_data <- as.raw(data)
+		conv_data <- rawToBits(conv_data)
+	# convert from binary
+	} else if (is.raw(data) && data_type_name == "character") {
+		conv_data <- add_missing_bits(data)
+		conv_data <- packBits(conv_data, "raw")
+		conv_data <- rawToChar(conv_data)
+	} else if (is.raw(data) && data_type_name == "integer") {
+		conv_data <- add_missing_bits(data)
+		conv_data <- packBits(conv_data, "raw")
+		conv_data <- as.integer(conv_data)
 	}
-	return(data)
+	return(conv_data)
 }
 
-convert_to_binary <- function(data) {
-	bin_data <- NA
-	if (is.character(data)) {
-		bin_data <- charToRaw(data)
-		bin_data <- rawToBits(bin_data)
-	} else if (is.integer(data)) {
-		bin_data <- as.raw(data)
-		bin_data <- rawToBits(bin_data)
-	}
-	return(bin_data)
-}
-
+# may not need to pass connection if it will only be 1 per dialogue
 send <- function(conn, data, send_data_type = FALSE) {
 	if (send_data_type) {
 		data_type_name <- typeof(data)
-		data_type_name <- convert_to_binary(data_type_name)
+		data_type_name <- bin_conv(data_type_name)
 		writeBin(data_type_name, conn)
 	}
-	bin_data <- convert_to_binary(data)
+	bin_data <- bin_conv(data)
 	writeBin(bin_data, conn)
 }
 
-# Add optional expect_data_type argument that will receive and convert data type as string
-# should there be an expected data type arg that specifies a known data type?
+# may not need to pass connection if it will only be 1 per dialogue
 recv <- function(conn, recv_data_type = FALSE, set_data_type = "character") {
 	if (recv_data_type) {
 		suppressWarnings(data_type_name <- readBin(conn, "raw", HEADER))
 		while (length(data_type_name) == 0) {
 			suppressWarnings(data_type_name <- readBin(conn, "raw", HEADER))
 		}
-		data_type_name <- convert_from_binary(data_type_name, "character")
+		data_type_name <- bin_conv(data_type_name, "character")
 		data_type_name <- data_type_vect[data_type_name]
 	} else {
 		data_type_name <- set_data_type
@@ -92,16 +89,17 @@ recv <- function(conn, recv_data_type = FALSE, set_data_type = "character") {
 		suppressWarnings(data <- readBin(conn, "raw", HEADER))
 	}
 
-	data <- convert_from_binary(data, data_type_name)
+	data <- bin_conv(data, data_type_name)
 
 	return(data)
 }
 
 #receive target file path
+# need to learn how to receive path as system argument.
+# may also receive package directory to source-import R modules
 file_path <- recv(con)
 
 #load target file
-# need to learn how to receive path as system argument.
 source(file_path)
 
 confirm <- TRUE

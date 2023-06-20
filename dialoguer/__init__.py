@@ -2,10 +2,7 @@ import os
 import subprocess
 import threading
 import socket
-
-# I want to consolidate the binary_conversion module
-# from .binary_conversion import bin_conv
-from . import binary_conversion
+from .binary_conversion import bin_conv
 from .data_type_ref import data_type_dict
 
 HEADER = 2048
@@ -32,6 +29,7 @@ class Dialogue:
 		context_file = __file__.replace('__init__.py', 'context_script.r')
 
 		# I believe it is possible to pass the R target file path as a system argument.
+		# I might should pass the package directory instead/as-well so R can source-import modules from there
 		subprocess.run(
 			f'Rscript {context_file}',
 			cwd = os.getcwd(),
@@ -63,9 +61,9 @@ class Dialogue:
 		if send_data_type:
 			data_type_name = type(data)
 			data_type_name = data_type_name.__name__
-			data_type_name = binary_conversion.convert_to_binary(data_type_name)
+			data_type_name = bin_conv(data_type_name)
 			self.conn.send(data_type_name)
-		bin_data = binary_conversion.convert_to_binary(data)
+		bin_data = bin_conv(data)
 		self.conn.send(bin_data)
 
 	def recv(self, recv_data_type = False, set_data_type = str):
@@ -73,7 +71,7 @@ class Dialogue:
 			data_type_name = self.conn.recv(HEADER)
 			while data_type_name == b'\x00':
 				data_type_name = self.conn.recv(HEADER)
-			data_type_name = binary_conversion.convert_from_binary(data_type_name, str)
+			data_type_name = bin_conv(data_type_name, str)
 			data_type = data_type_dict[data_type_name]
 		else:
 			data_type = set_data_type
@@ -82,7 +80,7 @@ class Dialogue:
 		while data == b'\x00':
 			data = self.conn.recv(HEADER)
 		
-		data = binary_conversion.convert_from_binary(data, data_type)
+		data = bin_conv(data, data_type)
 
 		return data
 

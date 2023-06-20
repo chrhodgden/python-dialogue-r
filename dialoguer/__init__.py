@@ -30,6 +30,7 @@ class Dialogue:
 
 		# I believe it is possible to pass the R target file path as a system argument.
 		# I might should pass the package directory instead/as-well so R can source-import modules from there
+		# perhaps setting the cwd to the package directory might work?
 		subprocess.run(
 			f'Rscript {context_file}',
 			cwd = os.getcwd(),
@@ -40,6 +41,8 @@ class Dialogue:
 		server.listen()
 		self.conn, self.addr = server.accept()
 	
+	# I could call this method in the init method
+	# perhaps use a wait arg? there are two points it could wait.
 	def launch_and_connect(self):
 		self._connect = threading.Thread(target=self.establish_connection)
 		self._launch = threading.Thread(target=self.execute_context_script)
@@ -50,6 +53,7 @@ class Dialogue:
 
 		self.send(self.file_path)
 		data = self.recv(True)
+		#This was not updated.
 		self.active = (data == 'TRUE')
 	
 	def open(self, wait = True):
@@ -66,6 +70,7 @@ class Dialogue:
 		bin_data = bin_conv(data)
 		self.conn.send(bin_data)
 
+	# I still want to consolidate the recv_data_type and set_data_type args
 	def recv(self, recv_data_type = False, set_data_type = str):
 		if recv_data_type:
 			data_type_name = self.conn.recv(HEADER)
@@ -92,6 +97,7 @@ class Dialogue:
 	def evaluate_expression(self, expr):
 		pass
 
+	#perhaps should consolidate the last two methods here
 	def disconnect_and_close(self):
 		self.send('!DISCONNECT')
 		self._launch.join()

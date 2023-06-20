@@ -1,7 +1,7 @@
 import unittest
 from dialoguer.binary_conversion import bin_conv
 
-
+# perhaps we can put reversals in this test
 class TestBinaryConversion(unittest.TestCase):
 
 	@classmethod

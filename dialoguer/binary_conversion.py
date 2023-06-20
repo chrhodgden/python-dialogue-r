@@ -1,60 +1,56 @@
-def convert_to_binary(data):
-	bin_data = None
-	if type(data) == str:
-		bin_data = reversed(data)
-		bin_data = "".join(bin_data)
+def bin_conv(data, data_type = None):
+	conv_data = None
+	#convert to binary 
+	if type(data) == str and data_type == None:
+		conv_data = reversed(data)
+		conv_data = ''.join(conv_data)
 		n = ''
-		for s in bin_data:
+		for s in conv_data:
 			m = ord(s)
 			m = hex(m)
 			n += m.lstrip('0x')
-		bin_data = n
-		bin_data = int(bin_data, 16)
-		bin_data = bin(bin_data)
-		#bin_data = bin_data.lstrip('0b')
-		bin_data = bin_data.replace('b', '')
-		bin_data = ''.join(reversed(bin_data))
-		bin_data = bin_data.zfill(8)
+		conv_data = n
+		conv_data = int(conv_data, 16)
+		conv_data = bin(conv_data)
+		conv_data = conv_data.replace('b', '')
+		conv_data = ''.join(reversed(conv_data))
+		conv_data = conv_data.zfill(8)
 		n = b''
-		for b in bin_data:
+		for b in conv_data:
 			m = int(b)
 			m = chr(m)
 			m = bytes(m, 'utf-8')
 			n += m
-		bin_data = n
-	elif type(data) == int:
-		bin_data = bin(data)
-		bin_data = bin_data.lstrip('0b')
-		bin_data = bin_data.zfill(8)
+		conv_data = n
+	elif type(data) == int and data_type == None:
+		conv_data = bin(data)
+		conv_data = conv_data.lstrip('0b')
+		conv_data = conv_data.zfill(8)
 		n = b''
-		for b in bin_data:
+		for b in conv_data:
 			m = int(b)
 			m = chr(m)
 			m = bytes(m, 'utf-8')
 			n += m
-		bin_data = n
-
-	return bin_data
-
-def convert_from_binary(bin_data, cls_type):
+		conv_data = n
 	
-	if cls_type == str:
+	#convert from binary 
+	elif type(data) == bytes and data_type == str:
 		n = ''
-		for b in bin_data: n = f'{b}{n}'
-		#for b in bin_data: n = f'{n}{b}'
-		data = n
-		data = int(data, 2)
-		data = hex(data)
-		data = data.lstrip('0x')
-		data = bytearray.fromhex(data)	
-		data = data.decode()
-		data = ''.join(reversed(data))
-	elif cls_type == int:
+		for b in data: n = f'{b}{n}'
+		conv_data = n
+		conv_data = int(conv_data, 2)
+		conv_data = hex(conv_data)
+		conv_data = conv_data.lstrip('0x')
+		conv_data = bytearray.fromhex(conv_data)	
+		conv_data = conv_data.decode()
+		conv_data = ''.join(reversed(conv_data))
+	elif type(data) == bytes and data_type == int:
 		n = ''
-		for b in bin_data: n = f'{b}{n}'
-		data = n
-		data = int(data, 2)
-	elif cls_type == bool:
-		data = bool(bin_data[0])
+		for b in data: n = f'{b}{n}'
+		conv_data = n
+		conv_data = int(conv_data, 2)
+	elif type(data) == bytes and data_type == bool:
+		conv_data = bool(data[0])
 
-	return data
+	return conv_data

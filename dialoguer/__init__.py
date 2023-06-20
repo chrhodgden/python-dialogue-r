@@ -2,7 +2,11 @@ import os
 import subprocess
 import threading
 import socket
+
+# I want to consolidate the binary_conversion module
+# from .binary_conversion import bin_conv
 from . import binary_conversion
+from .data_type_ref import data_type_dict
 
 HEADER = 2048
 PORT = 6011
@@ -47,8 +51,7 @@ class Dialogue:
 		self._connect.join()
 
 		self.send(self.file_path)
-		data = self.recv()
-		data = binary_conversion.convert_from_binary(data, type('s'))
+		data = self.recv(True)
 		self.active = (data == 'TRUE')
 	
 	def open(self, wait = True):
@@ -56,27 +59,36 @@ class Dialogue:
 		if wait: self._open.run()
 		else: self._open.start()
 
-	# Could I add an optional data_type argument that sends the data type as string?
-	# Would be used for steps for when data_type is expected by R.
-	def send(self, data):
-		# I should probably put this reversal in the convert_to_binary method.
-		bin_data = reversed(data)
-		bin_data = "".join(bin_data)
-		bin_data = binary_conversion.convert_to_binary(bin_data)
+	def send(self, data, send_data_type = False):
+		if send_data_type:
+			data_type_name = type(data)
+			data_type_name = data_type_name.__name__
+			data_type_name = binary_conversion.convert_to_binary(data_type_name)
+			self.conn.send(data_type_name)
+		bin_data = binary_conversion.convert_to_binary(data)
 		self.conn.send(bin_data)
 
-	# Could add an optional boolean expect_data_type argument that receives data type as string.
-	# should there be an expected data type arg that specifies a known data type?
-	def recv(self):
+	def recv(self, recv_data_type = False, set_data_type = str):
+		if recv_data_type:
+			data_type_name = self.conn.recv(HEADER)
+			while data_type_name == b'\x00':
+				data_type_name = self.conn.recv(HEADER)
+			data_type_name = binary_conversion.convert_from_binary(data_type_name, str)
+			data_type = data_type_dict[data_type_name]
+		else:
+			data_type = set_data_type
+
 		data = self.conn.recv(HEADER)
 		while data == b'\x00':
-			data = self.conn.recv(HEADER)			
+			data = self.conn.recv(HEADER)
+		
+		data = binary_conversion.convert_from_binary(data, data_type)
+
 		return data
 
 	def import_variable(self, var_name):
-		self.send(var_name)
-		val = self.recv()
-		val = binary_conversion.convert_from_binary(val, type('s'))
+		self.send(var_name, False)
+		val = self.recv(True)
 		return val
 
 	def evaluate_expression(self, expr):

@@ -11,6 +11,15 @@ con <- socketConnection(
 	open = "a+b"
 )
 
+data_type_vect <- c(
+	character = 'character',
+	str = 'character',
+	integer = 'integer',
+	int = 'integer',
+	logical = 'logical',
+	bool = 'logical'
+)
+
 display_msg <- function(msg) {
     cat(
         '\033[94m',
@@ -54,32 +63,42 @@ convert_to_binary <- function(data) {
 	return(bin_data)
 }
 
-# Add optional data_type argument that sends data_type as string
-send <- function(conn, data) {
-	writeBin(data, conn)
+send <- function(conn, data, send_data_type = FALSE) {
+	if (send_data_type) {
+		data_type_name <- typeof(data)
+		data_type_name <- convert_to_binary(data_type_name)
+		writeBin(data_type_name, conn)
+	}
+	bin_data <- convert_to_binary(data)
+	writeBin(bin_data, conn)
 }
 
 # Add optional expect_data_type argument that will receive and convert data type as string
 # should there be an expected data type arg that specifies a known data type?
-recv <- function(conn, silent = TRUE) {
-	if (silent) {
-		suppressWarnings(data <- readBin(conn, "raw", HEADER))
-		while (length(data) == 0) {
-			suppressWarnings(data <- readBin(conn, "raw", HEADER))
+recv <- function(conn, recv_data_type = FALSE, set_data_type = "character") {
+	if (recv_data_type) {
+		suppressWarnings(data_type_name <- readBin(conn, "raw", HEADER))
+		while (length(data_type_name) == 0) {
+			suppressWarnings(data_type_name <- readBin(conn, "raw", HEADER))
 		}
+		data_type_name <- convert_from_binary(data_type_name, "character")
+		data_type_name <- data_type_vect[data_type_name]
 	} else {
-		data <- readBin(conn, "raw", HEADER)
-		while (length(data) == 0) {
-			cat('ALERT\n')
-			data <- readBin(conn, "raw", HEADER)
-		}
+		data_type_name <- set_data_type
 	}
+
+	suppressWarnings(data <- readBin(conn, "raw", HEADER))
+	while (length(data) == 0) {
+		suppressWarnings(data <- readBin(conn, "raw", HEADER))
+	}
+
+	data <- convert_from_binary(data, data_type_name)
+
 	return(data)
 }
 
 #receive target file path
 file_path <- recv(con)
-file_path <- convert_from_binary(file_path, "character")
 
 #load target file
 # need to learn how to receive path as system argument.
@@ -94,11 +113,8 @@ while (msg != '!DISCONNECT') {
 		# evaluating expressions
 	display_msg(msg)
 	val <- get(msg)
-	val <- as.character(val)
-	val <- convert_to_binary(val)
-	send(con, val)
-	msg <- recv(con)
-	msg <- convert_from_binary(msg, "character")
+	send(con, val, TRUE)
+	msg <- recv(con, FALSE, "character")
 }
 
 close(con)

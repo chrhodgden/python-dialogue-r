@@ -19,11 +19,17 @@ class TestImportVariable(unittest.TestCase):
 	def tearDown(self):
 		self.src_fil_r.close()
 
-	def test_import_variable(self):
+	def test_import_string(self):
 		msg_1 = self.src_fil_r.import_variable('msg_1')
 		msg_2 = self.src_fil_r.import_variable('msg_2')
 		self.assertEqual(msg_1, 'Initializing Client - R')
 		self.assertEqual(msg_2, 'Initialized Client - R')
+
+	def test_import_integer(self):
+		int_1 = self.src_fil_r.import_variable('int_1')
+		int_2 = self.src_fil_r.import_variable('int_2')
+		self.assertEqual(int_1, 3)
+		self.assertEqual(int_2, 155)
 
 
 if __name__ == '__main__':

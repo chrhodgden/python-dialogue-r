@@ -31,6 +31,7 @@ class Dialogue:
 		# I believe it is possible to pass the R target file path as a system argument.
 		# I might should pass the package directory instead/as-well so R can source-import modules from there
 		# perhaps setting the cwd to the package directory might work?
+		# If we cab use system-args, the most important arg should be the "key" that coordinates which sockets connection to find.
 		subprocess.run(
 			f'Rscript {context_file}',
 			cwd = os.getcwd(),

@@ -72,6 +72,7 @@ send <- function(conn, data, send_data_type = FALSE) {
 }
 
 # may not need to pass connection if it will only be 1 per dialogue
+# I still want to consolidate the recv_data_type and set_data_type args
 recv <- function(conn, recv_data_type = FALSE, set_data_type = "character") {
 	if (recv_data_type) {
 		suppressWarnings(data_type_name <- readBin(conn, "raw", HEADER))

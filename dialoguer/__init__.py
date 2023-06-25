@@ -2,6 +2,7 @@ import os
 import subprocess
 import threading
 import socket
+import uuid
 from .binary_conversion import bin_conv
 from .data_type_ref import data_type_dict
 
@@ -21,26 +22,30 @@ class Dialogue:
 		self.file_name = file_name
 		self.file_path = os.path.join(os.getcwd(), file_name)
 		self.ext = file_name.split('.')[-1]
+		self.uuid = str(uuid.uuid4())
 		self.conn = None
 		self.addr = None
+		self.connected = False
 		self.active = False
 
 	def execute_context_script(self):
 		context_file = __file__.replace('__init__.py', 'context_script.r')
 
-		# I believe it is possible to pass the R target file path as a system argument.
-		# I might should pass the package directory instead/as-well so R can source-import modules from there
-		# perhaps setting the cwd to the package directory might work?
-		# If we cab use system-args, the most important arg should be the "key" that coordinates which sockets connection to find.
 		subprocess.run(
-			f'Rscript {context_file}',
+			f'Rscript {context_file} {self.uuid} {self.file_path}',
 			cwd = os.getcwd(),
 			start_new_session = True
 			)
 
 	def establish_connection(self):
-		server.listen()
-		self.conn, self.addr = server.accept()
+		while not self.connected:
+			server.listen()
+			self.conn, self.addr = server.accept()
+			uuid_chk = self.recv()
+			self.connected = self.uuid == uuid_chk
+			self.send(self.uuid)
+			if not self.connected:
+				self.conn.close()
 	
 	# I could call this method in the init method
 	# perhaps use a wait arg? there are two points it could wait.
@@ -52,7 +57,6 @@ class Dialogue:
 		self._launch.start()
 		self._connect.join()
 
-		self.send(self.file_path)
 		data = self.recv(True)
 		#This was not updated.
 		self.active = (data == 'TRUE')
@@ -103,6 +107,7 @@ class Dialogue:
 		self.send('!DISCONNECT')
 		self._launch.join()
 		self.conn.close()
+		self.connected = False
 		self.active = False
 
 	def close(self, wait = True):

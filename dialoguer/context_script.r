@@ -3,13 +3,8 @@ PORT <- 6011
 SERVER <- "localhost"
 FORMAT <- "utf-8"
 DISCONNECT_MESSAGE <- "!DISSCONNECT"
-
-con <- socketConnection(
-	host = SERVER,
-	port = PORT,
-	server = FALSE,
-	open = "a+b"
-)
+UUID <- commandArgs(trailingOnly = TRUE)[1]
+TARGET_FILE <- commandArgs(trailingOnly = TRUE)[2]
 
 data_type_vect <- c(
 	character = 'character',
@@ -95,13 +90,30 @@ recv <- function(conn, recv_data_type = FALSE, set_data_type = "character") {
 	return(data)
 }
 
-#receive target file path
-# need to learn how to receive path as system argument.
-# may also receive package directory to source-import R modules
-file_path <- recv(con)
+find_connection <- function() {
+	connected <- FALSE
+	while (!connected) {
+		con <- socketConnection(
+			host = SERVER,
+			port = PORT,
+			server = FALSE,
+			open = "a+b"
+		)
+
+		send(con, UUID)
+		uuid_chk <- recv(con)
+		connected <- (UUID == uuid_chk)
+		if (!connected) {
+			close(con)
+		}
+	}
+	return(con)
+}
+
+con <- find_connection()
 
 #load target file
-source(file_path)
+source(TARGET_FILE)
 
 confirm <- TRUE
 msg <- 'confirm'

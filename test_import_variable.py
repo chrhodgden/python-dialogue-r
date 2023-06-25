@@ -30,6 +30,12 @@ class TestImportVariable(unittest.TestCase):
 		self.assertEqual(int_1, 3)
 		self.assertEqual(int_2, 155)
 
+	def test_import_boolean(self):
+		chk_1 = self.src_fil_r.import_variable('chk_1')
+		chk_2 = self.src_fil_r.import_variable('chk_2')
+		self.assertEqual(chk_1, True)
+		self.assertEqual(chk_2, False)
+
 
 if __name__ == '__main__':
 	unittest.main()

@@ -18,7 +18,7 @@ server.bind(ADDR)
 # could there be a defined sub-class that has all the sockets connection functions?
 # then the dialogue class launches and connects and loops
 class Dialogue:
-	def __init__(self, file_name):
+	def __init__(self, file_name, wait = True):
 		self.file_name = file_name
 		self.file_path = os.path.join(os.getcwd(), file_name)
 		self.ext = file_name.split('.')[-1]
@@ -27,6 +27,8 @@ class Dialogue:
 		self.addr = None
 		self.connected = False
 		self.active = False
+		if wait: 
+			self.open()
 
 	def execute_context_script(self):
 		context_file = __file__.replace('__init__.py', 'context_script.r')
@@ -47,9 +49,7 @@ class Dialogue:
 			if not self.connected:
 				self.conn.close()
 	
-	# I could call this method in the init method
-	# perhaps use a wait arg? there are two points it could wait.
-	def launch_and_connect(self):
+	def open(self):
 		self._connect = threading.Thread(target=self.establish_connection)
 		self._launch = threading.Thread(target=self.execute_context_script)
 
@@ -61,11 +61,6 @@ class Dialogue:
 		#This was not updated.
 		self.active = (data == 'TRUE')
 	
-	def open(self, wait = True):
-		self._open = threading.Thread(target=self.launch_and_connect)
-		if wait: self._open.run()
-		else: self._open.start()
-
 	def send(self, data, send_data_type = False):
 		if send_data_type:
 			data_type_name = type(data)
@@ -102,16 +97,12 @@ class Dialogue:
 	def evaluate_expression(self, expr):
 		pass
 
-	#perhaps should consolidate the last two methods here
-	def disconnect_and_close(self):
+	def close(self):
 		self.send('!DISCONNECT')
 		self._launch.join()
 		self.conn.close()
+		self.conn = None
+		self.addr = None
 		self.connected = False
 		self.active = False
-
-	def close(self, wait = True):
-		self._close = threading.Thread(target=self.disconnect_and_close)
-		if wait: self._close.run()
-		else: self._close.start()
 

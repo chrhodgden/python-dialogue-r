@@ -14,7 +14,6 @@ class TestImportVariable(unittest.TestCase):
 
 	def setUp(self):
 		self.src_fil_r = dialoguer.Dialogue('test_import_variable.r')
-		self.src_fil_r.open()
 	
 	def tearDown(self):
 		self.src_fil_r.close()

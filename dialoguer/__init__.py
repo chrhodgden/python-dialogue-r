@@ -89,15 +89,18 @@ class Dialogue:
 		return data
 
 	def import_variable(self, var_name):
+		self.send(1)
+		recv_chk = self.recv(set_data_type=bool)
 		self.send(var_name, False)
 		val = self.recv(True)
 		return val
 
-	def evaluate_expression(self, expr):
+	def evaluate_expression(self, method_name, *args):
+		self.send(2)
 		pass
 
 	def close(self):
-		self.send('!DISCONNECT')
+		self.send(0)
 		self._launch.join()
 		self.conn.close()
 		self.conn = None

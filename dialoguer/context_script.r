@@ -116,6 +116,16 @@ find_connection <- function() {
 	return(con)
 }
 
+import_variable <- function() {
+	var_name <- recv(con, FALSE, "character")
+	var_val <- get(var_name)
+	send(con, var_val, TRUE)
+}
+
+evaluate_expression <- function () {
+
+}
+
 con <- find_connection()
 
 #load target file
@@ -123,16 +133,15 @@ source(TARGET_FILE)
 
 send(con, TRUE)
 
-msg <- ''
-while (msg != '!DISCONNECT') {
-	# there should be several handeling methods
-		# returning variables
-		# evaluating expressions
-	msg <- recv(con, FALSE, "character")
-	if (msg != '!DISCONNECT') {
-		val <- get(msg)
-		display_msg(msg, val)
-		send(con, val, TRUE)
+cmd_int <- -1
+while (cmd_int != 0) {
+	cmd_int <- recv(con, FALSE, "integer")
+	if (cmd_int == 1){
+		send(con, TRUE)
+		import_variable()
+	} else if (cmd_int == 2) {
+		send(con, TRUE)
+		evaluate_expression()
 	}
 }
 

@@ -6,17 +6,17 @@ class TestImportVariable(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		pass
+		cls.src_fil_r = dialoguer.Dialogue('test_import_variable.r')
 
 	@classmethod
 	def tearDownClass(cls):
-		pass
+		cls.src_fil_r.close()
 
 	def setUp(self):
-		self.src_fil_r = dialoguer.Dialogue('test_import_variable.r')
-	
+		pass
+
 	def tearDown(self):
-		self.src_fil_r.close()
+		pass
 
 	def test_import_string(self):
 		msg_1 = self.src_fil_r.import_variable('msg_1')

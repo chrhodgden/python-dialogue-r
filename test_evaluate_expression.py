@@ -2,7 +2,7 @@ import unittest
 import dialoguer
 
 
-class TestImportVariable(unittest.TestCase):
+class TestEvaluateExpression(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):

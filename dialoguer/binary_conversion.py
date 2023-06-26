@@ -26,6 +26,7 @@ def bin_conv(data, data_type = None):
 		conv_data = bin(data)
 		conv_data = conv_data.lstrip('0b')
 		conv_data = conv_data.zfill(8)
+		conv_data = ''.join(reversed(conv_data))
 		n = b''
 		for b in conv_data:
 			m = int(b)

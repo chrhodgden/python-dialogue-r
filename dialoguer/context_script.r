@@ -123,7 +123,19 @@ import_variable <- function() {
 }
 
 evaluate_expression <- function () {
-
+	arg_count <- recv(con, FALSE, "integer")
+	send(con, TRUE)
+	method_name <- recv(con, FALSE, "character")
+	send(con, TRUE)
+	args <- list()
+	if (arg_count > 0) {
+		for (i in 1:arg_count) {
+		args <- c(args, recv(con, TRUE))
+		send(con, TRUE)
+		}
+	}
+	result <- do.call(method_name, args)
+	send(con, result, TRUE)
 }
 
 con <- find_connection()

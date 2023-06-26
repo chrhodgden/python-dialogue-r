@@ -57,9 +57,8 @@ class Dialogue:
 		self._launch.start()
 		self._connect.join()
 
-		data = self.recv(True)
-		#This was not updated.
-		self.active = (data == 'TRUE')
+		data = self.recv(set_data_type=bool)
+		self.active = (data == True)
 	
 	def send(self, data, send_data_type = False):
 		if send_data_type:

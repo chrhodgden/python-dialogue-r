@@ -15,11 +15,10 @@ data_type_vect <- c(
 	bool = 'logical'
 )
 
-display_msg <- function(msg) {
-    cat(
-        '\033[94m',
-        msg,
-        sep = '',
+display_msg <- function(...) {
+	cat('\033[94m')
+	cat(
+        ...,
         end = '\033[0m\n'
     )
 }
@@ -42,6 +41,9 @@ bin_conv <- function(data, data_type_name = NA) {
 	} else if (is.integer(data) && is.na(data_type_name)) {
 		conv_data <- as.raw(data)
 		conv_data <- rawToBits(conv_data)
+	} else if (is.logical(data) && is.na(data_type_name)) {
+		conv_data <- as.raw(data)
+		conv_data <- rawToBits(conv_data)
 	# convert from binary
 	} else if (is.raw(data) && data_type_name == "character") {
 		conv_data <- add_missing_bits(data)
@@ -51,6 +53,10 @@ bin_conv <- function(data, data_type_name = NA) {
 		conv_data <- add_missing_bits(data)
 		conv_data <- packBits(conv_data, "raw")
 		conv_data <- as.integer(conv_data)
+	} else if (is.raw(data) && data_type_name == "logical") {
+		conv_data <- add_missing_bits(data)
+		conv_data <- packBits(conv_data, "raw")
+		conv_data <- as.logical(conv_data)
 	}
 	return(conv_data)
 }
@@ -115,17 +121,19 @@ con <- find_connection()
 #load target file
 source(TARGET_FILE)
 
-confirm <- TRUE
-msg <- 'confirm'
+send(con, TRUE)
 
+msg <- ''
 while (msg != '!DISCONNECT') {
 	# there should be several handeling methods
 		# returning variables
 		# evaluating expressions
-	display_msg(msg)
-	val <- get(msg)
-	send(con, val, TRUE)
 	msg <- recv(con, FALSE, "character")
+	if (msg != '!DISCONNECT') {
+		val <- get(msg)
+		display_msg(msg, val)
+		send(con, val, TRUE)
+	}
 }
 
 close(con)

@@ -95,9 +95,30 @@ class Dialogue:
 		val = self.recv(True)
 		return val
 
-	def evaluate_expression(self, method_name, *args):
+	def evaluate_expression(self, method_name, *args, **kwargs):
 		self.send(2)
-		pass
+		recv_chk = self.recv(set_data_type=bool)
+		#send number of arguments
+		self.send(len(args))
+		recv_chk = self.recv(set_data_type=bool)
+		#send number of keyword arguments
+		self.send(len(kwargs)
+		recv_chk = self.recv(set_data_type=bool)
+		#send method name
+		self.send(method_name)
+		recv_chk = self.recv(set_data_type=bool)
+		#send arguments
+		for arg in args:
+			self.send(arg, True)
+			recv_chk = self.recv(set_data_type=bool)
+		#send keyword arguments
+		for kwarg in kwargs:
+			#k = key(kwarg)
+			#self.send(k)
+			#recv_chk = self.recv(set_data_type=bool)
+			#v = val(kwarg)
+			#self.send(v, True)
+			#recv_chk = self.recv(set_data_type=bool)
 
 	def close(self):
 		self.send(0)

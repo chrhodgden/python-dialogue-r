@@ -102,8 +102,8 @@ class Dialogue:
 		self.send(len(args))
 		recv_chk = self.recv(set_data_type=bool)
 		#send number of keyword arguments
-		# self.send(len(kwargs))
-		# recv_chk = self.recv(set_data_type=bool)
+		self.send(len(kwargs))
+		recv_chk = self.recv(set_data_type=bool)
 		#send method name
 		self.send(method_name)
 		recv_chk = self.recv(set_data_type=bool)
@@ -112,14 +112,11 @@ class Dialogue:
 			self.send(arg, True)
 			recv_chk = self.recv(set_data_type=bool)
 		#send keyword arguments
-		for kwarg in kwargs:
-			#k = key(kwarg)
-			#self.send(k)
-			#recv_chk = self.recv(set_data_type=bool)
-			#v = val(kwarg)
-			#self.send(v, True)
-			#recv_chk = self.recv(set_data_type=bool)
-			pass
+		for kw in kwargs:
+			self.send(kw)
+			recv_chk = self.recv(set_data_type=bool)
+			self.send(kwargs[kw], True)
+			recv_chk = self.recv(set_data_type=bool)
 		result = self.recv(True)
 		return result
 

@@ -89,15 +89,40 @@ class Dialogue:
 		return data
 
 	def import_variable(self, var_name):
+		self.send(1)
+		recv_chk = self.recv(set_data_type=bool)
 		self.send(var_name, False)
 		val = self.recv(True)
 		return val
 
-	def evaluate_expression(self, expr):
-		pass
+	def evaluate_expression(self, method_name, *args, **kwargs):
+		self.send(2)
+		recv_chk = self.recv(set_data_type=bool)
+		#send number of arguments
+		self.send(len(args))
+		recv_chk = self.recv(set_data_type=bool)
+		#send number of keyword arguments
+		self.send(len(kwargs))
+		recv_chk = self.recv(set_data_type=bool)
+		#send method name
+		self.send(method_name)
+		recv_chk = self.recv(set_data_type=bool)
+		#send arguments
+		for arg in args:
+			self.send(arg, True)
+			recv_chk = self.recv(set_data_type=bool)
+		#send keyword arguments
+		for kw in kwargs:
+			self.send(kw)
+			recv_chk = self.recv(set_data_type=bool)
+			self.send(kwargs[kw], True)
+			recv_chk = self.recv(set_data_type=bool)
+		result = self.recv(True)
+		return result
+
 
 	def close(self):
-		self.send('!DISCONNECT')
+		self.send(0)
 		self._launch.join()
 		self.conn.close()
 		self.conn = None

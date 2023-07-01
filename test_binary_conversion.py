@@ -1,6 +1,8 @@
 import unittest
 from dialoguer.binary_conversion import bin_conv
 
+# some of these test currently fail because bytes are reversed. 
+# the binary conversions work with R's tendancy to reverse the sockets i/o
 # perhaps we can put reversals in this test
 class TestBinaryConversion(unittest.TestCase):
 
@@ -36,8 +38,6 @@ class TestBinaryConversion(unittest.TestCase):
 			var_i = bin_conv(bin_i, type(i))
 			self.assertEqual(i, var_i)
 
-	# this test currently fails because bytes are reversed. 
-	# the binary conversions work with R's tendancy to reverse the sockets i/o
 	def test_string_conversion(self):
 		str_base = 'abcdefghijklmnopqrstuvwxyz!@#$%^&*()'
 		str_base += str_base.upper()

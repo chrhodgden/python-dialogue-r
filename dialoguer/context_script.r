@@ -11,6 +11,8 @@ data_type_vect <- c(
 	str = 'character',
 	integer = 'integer',
 	int = 'integer',
+	double = 'double',
+	float = 'double',
 	logical = 'logical',
 	bool = 'logical'
 )
@@ -44,6 +46,9 @@ bin_conv <- function(data, data_type_name = NA) {
 	} else if (is.logical(data) && is.na(data_type_name)) {
 		conv_data <- as.raw(data)
 		conv_data <- rawToBits(conv_data)
+	} else if (is.double(data) && is.na(data_type_name)) {
+		conv_data <- as.raw(data)
+		conv_data <- rawToBits(conv_data)
 	# convert from binary
 	} else if (is.raw(data) && data_type_name == "character") {
 		conv_data <- add_missing_bits(data)
@@ -57,6 +62,10 @@ bin_conv <- function(data, data_type_name = NA) {
 		conv_data <- add_missing_bits(data)
 		conv_data <- packBits(conv_data, "raw")
 		conv_data <- as.logical(conv_data)
+	} else if (is.raw(data) && data_type_name == "double") {
+		conv_data <- add_missing_bits(data)
+		conv_data <- packBits(conv_data, "raw")
+		conv_data <- as.double(conv_data)
 	}
 	return(conv_data)
 }
@@ -116,6 +125,43 @@ find_connection <- function() {
 	return(con)
 }
 
+import_variable <- function() {
+	var_name <- recv(con, FALSE, "character")
+	var_val <- get(var_name)
+	send(con, var_val, TRUE)
+}
+
+evaluate_expression <- function() {
+	arg_count <- recv(con, FALSE, "integer")
+	send(con, TRUE)
+	kwarg_count <- recv(con, FALSE, "integer")
+	send(con, TRUE)
+	method_name <- recv(con, FALSE, "character")
+	send(con, TRUE)
+	args <- list()
+	if (arg_count > 0) {
+		for (i in 1:arg_count) {
+		args <- c(args, recv(con, TRUE))
+		send(con, TRUE)
+		}
+	}
+	kwargs <- list()
+	if (kwarg_count > 0) {
+		keys <- c()
+		vals <- list()
+		for (i in 1:kwarg_count) {
+			keys <- c(keys, recv(con))
+			send(con, TRUE)
+			vals <- c(vals, recv(con, TRUE))
+			send(con, TRUE)
+		}
+		kwargs <- setNames(vals, keys)
+	}
+	args <- c(args, kwargs)
+	result <- do.call(method_name, args)
+	send(con, result, TRUE)
+}
+
 con <- find_connection()
 
 #load target file
@@ -123,16 +169,15 @@ source(TARGET_FILE)
 
 send(con, TRUE)
 
-msg <- ''
-while (msg != '!DISCONNECT') {
-	# there should be several handeling methods
-		# returning variables
-		# evaluating expressions
-	msg <- recv(con, FALSE, "character")
-	if (msg != '!DISCONNECT') {
-		val <- get(msg)
-		display_msg(msg, val)
-		send(con, val, TRUE)
+cmd_int <- -1
+while (cmd_int != 0) {
+	cmd_int <- recv(con, FALSE, "integer")
+	if (cmd_int == 1){
+		send(con, TRUE)
+		import_variable()
+	} else if (cmd_int == 2) {
+		send(con, TRUE)
+		evaluate_expression()
 	}
 }
 

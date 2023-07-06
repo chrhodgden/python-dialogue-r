@@ -36,6 +36,12 @@ class TestImportVariable(unittest.TestCase):
 		self.assertEqual(chk_1, True)
 		self.assertEqual(chk_2, False)
 
+	def test_import_double(self):
+		dbl_1 = self.src_fil_r.import_variable('dbl_1')
+		dbl_2 = self.src_fil_r.import_variable('dbl_2')
+		self.assertEqual(dbl_1, 3)
+		self.assertEqual(dbl_2, 12.345)
+
 
 if __name__ == '__main__':
 	unittest.main()

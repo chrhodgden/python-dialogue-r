@@ -99,6 +99,14 @@ class Dialogue:
 		val = self.recv(True)
 		return val
 
+	def assign_variable(self, var_name, var_val):
+		self.send(3)
+		recv_chk = self.recv(set_data_type=bool)
+		self.send(var_name, False)
+		recv_chk = self.recv(set_data_type=bool)
+		self.send(var_val, True)
+		recv_chk = self.recv(set_data_type=bool)
+
 	def evaluate_expression(self, method_name, *args, **kwargs):
 		self.send(2)
 		recv_chk = self.recv(set_data_type=bool)

@@ -86,6 +86,14 @@ import_variable <- function() {
 	send(con, var_val, TRUE)
 }
 
+assign_variable <- function() {
+	var_name <- recv(con, FALSE, "character")
+	send(con, TRUE)
+	var_val <- recv(con, TRUE)
+	send(con, TRUE)
+	assign(var_name, var_val, envir = globalenv())
+}
+
 evaluate_expression <- function() {
 	arg_count <- recv(con, FALSE, "integer")
 	send(con, TRUE)
@@ -133,6 +141,9 @@ while (cmd_int != 0) {
 	} else if (cmd_int == 2) {
 		send(con, TRUE)
 		evaluate_expression()
+	} else if (cmd_int == 3) {
+		send(con, TRUE)
+		assign_variable()
 	}
 }
 

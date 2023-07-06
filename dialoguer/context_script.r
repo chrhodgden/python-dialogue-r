@@ -7,21 +7,21 @@ UUID <- commandArgs(trailingOnly = TRUE)[1]
 TARGET_FILE <- commandArgs(trailingOnly = TRUE)[2]
 
 data_type_vect <- c(
-	character = 'character',
-	str = 'character',
-	integer = 'integer',
-	int = 'integer',
-	double = 'double',
-	float = 'double',
-	logical = 'logical',
-	bool = 'logical'
+	character = "character",
+	str = "character",
+	integer = "integer",
+	int = "integer",
+	double = "double",
+	float = "double",
+	logical = "logical",
+	bool = "logical"
 )
 
 display_msg <- function(...) {
-	cat('\033[94m')
+	cat("\033[94m")
 	cat(
         ...,
-        end = '\033[0m\n'
+        end = "\033[0m\n"
     )
 }
 
@@ -38,15 +38,12 @@ send <- function(conn, data, send_data_type = FALSE) {
 # I still want to consolidate the recv_data_type and set_data_type args
 recv <- function(conn, recv_data_type = FALSE, set_data_type = "character") {
 	if (recv_data_type) {
-		suppressWarnings(data_type_bin <- readBin(conn, "raw", HEADER))
-		while (length(data_type_bin) == 0) {
-			suppressWarnings(data_type_bin <- readBin(conn, "raw", HEADER))
+		suppressWarnings(data_type <- readBin(conn, "raw", HEADER))
+		while (length(data_type) == 0) {
+			suppressWarnings(data_type <- readBin(conn, "raw", HEADER))
 		}
-		display_msg('data_type_bin', data_type_bin)
-		data_type_name <- readBin(data_type_bin, "character")
-		display_msg('data_type_name', data_type_name, '-')
-		data_type <- data_type_vect[data_type_name]
-		display_msg('data_type', data_type)
+		data_type <- readBin(data_type, "character")
+		data_type <- data_type_vect[data_type]
 		send(con, TRUE)
 	} else {
 		data_type <- set_data_type
@@ -90,24 +87,18 @@ import_variable <- function() {
 
 evaluate_expression <- function() {
 	arg_count <- recv(con, FALSE, "integer")
-	display_msg('arg_count', arg_count)
 	send(con, TRUE)
 	kwarg_count <- recv(con, FALSE, "integer")
 	send(con, TRUE)
 	method_name <- recv(con, FALSE, "character")
-	display_msg('method_name', method_name)
 	send(con, TRUE)
 	args <- list()
-	#display_msg('args', args)
 	if (arg_count > 0) {
 		for (i in 1:arg_count) {
-		#display_msg('args', args)
 		args <- c(args, recv(con, TRUE))
-		args[1]
 		send(con, TRUE)
 		}
 	}
-	#display_msg('args', args)
 	kwargs <- list()
 	if (kwarg_count > 0) {
 		keys <- c()
@@ -135,7 +126,6 @@ send(con, TRUE)
 cmd_int <- -1
 while (cmd_int != 0) {
 	cmd_int <- recv(con, FALSE, "integer")
-	display_msg('cmd_int', cmd_int)
 	if (cmd_int == 1){
 		send(con, TRUE)
 		import_variable()

@@ -65,12 +65,9 @@ class Dialogue:
 			data_type_name = type(data)
 			data_type_name = data_type_name.__name__
 			data_type_name = bin_conv(data_type_name)
-			print('data_type_name', data_type_name)
 			self.conn.send(data_type_name)
 			recv_chk = self.recv(set_data_type=bool)
-			print('recv_chk', recv_chk)
 		bin_data = bin_conv(data)
-		# bin_data = bytes(data, 'utf-8')
 		self.conn.send(bin_data)
 
 	# I still want to consolidate the recv_data_type and set_data_type args
@@ -99,30 +96,21 @@ class Dialogue:
 		return val
 
 	def evaluate_expression(self, method_name, *args, **kwargs):
-		
-		print('cmd_int', 2)
 		self.send(2)
-		print('cmd_int', 2)
 		recv_chk = self.recv(set_data_type=bool)
-		print('recv_chk', recv_chk)
 		#send number of arguments
 		self.send(len(args))
 		recv_chk = self.recv(set_data_type=bool)
-		print('recv_chk', recv_chk)
 		#send number of keyword arguments
 		self.send(len(kwargs))
 		recv_chk = self.recv(set_data_type=bool)
-		print('recv_chk', recv_chk)
 		#send method name
 		self.send(method_name)
 		recv_chk = self.recv(set_data_type=bool)
-		print('recv_chk', recv_chk)
 		#send arguments
-		#print('args', args)
 		for arg in args:
 			self.send(arg, True)
 			recv_chk = self.recv(set_data_type=bool)
-			#print('recv_chk', recv_chk)
 		#send keyword arguments
 		for kw in kwargs:
 			self.send(kw)

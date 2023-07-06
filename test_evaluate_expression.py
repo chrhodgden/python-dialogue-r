@@ -44,6 +44,15 @@ class TestEvaluateExpression(unittest.TestCase):
 		res_ctrl = args[0] * args[1] * kwargs['kwarg_1'] * kwargs['kwarg_2']
 		self.assertEqual(res_ctrl, res_1)
 
+	def test_args_and_default_kwargs(self):
+		args = [2, 3]
+		kwargs = {
+			'kwarg_2': 3
+		}
+		res_1 = self.src_fil_r.evaluate_expression('test_args_and_kwargs', *args, **kwargs)
+		res_ctrl = args[0] * args[1] * 1 * kwargs['kwarg_2']
+		self.assertEqual(res_ctrl, res_1)
+
 
 if __name__ == '__main__':
 	unittest.main()

@@ -6,14 +6,16 @@ class TestEvaluateExpression(unittest.TestCase):
 
 	# @classmethod
 	# def setUpClass(cls):
-	# 	cls.src_fil_r = dialoguer.Dialogue('test_evaluate_expression.r')
+	# 	source_file_path = __file__.replace('.py', '.r')
+	# 	cls.src_fil_r = dialoguer.Dialogue(source_file_path)
 
 	# @classmethod
 	# def tearDownClass(cls):
 	# 	cls.src_fil_r.close()
 
 	def setUp(self):
-		self.src_fil_r = dialoguer.Dialogue('test_evaluate_expression.r')
+		source_file_path = __file__.replace('.py', '.r')
+		self.src_fil_r = dialoguer.Dialogue(source_file_path)
 
 	def tearDown(self):
 		self.src_fil_r.close()

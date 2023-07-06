@@ -1,3 +1,5 @@
+import struct
+
 def bin_conv(data, data_type = None):
 	conv_data = None
 	#convert to binary 
@@ -14,5 +16,7 @@ def bin_conv(data, data_type = None):
 		conv_data = int.from_bytes(data, 'little')
 	elif type(data) == bytes and data_type == bool:
 		conv_data = bool(data[0])
+	elif type(data) == bytes and data_type == float:
+		conv_data = struct.unpack('d', data)[0]
 
 	return conv_data

@@ -30,6 +30,7 @@ send <- function(conn, data, send_data_type = FALSE) {
 	if (send_data_type) {
 		data_type_name <- typeof(data)
 		writeBin(data_type_name, conn)
+		recv_chk <- recv(conn, set_data_type = 'logical')
 	}
 	writeBin(data, conn)
 }

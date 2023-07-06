@@ -7,6 +7,8 @@ def bin_conv(data, data_type = None):
 		conv_data = bytes(data, 'utf-8')
 	elif type(data) == int and data_type == None:
 		conv_data = data.to_bytes(32, 'little')
+	elif type(data) == bool and data_type == None:
+		conv_data = bytes(data)
 	
 	#convert from binary 
 	elif type(data) == bytes and data_type == str:

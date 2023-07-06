@@ -19,8 +19,11 @@ server.bind(ADDR)
 # then the dialogue class launches and connects and loops
 class Dialogue:
 	def __init__(self, file_name, wait = True):
-		self.file_name = file_name
-		self.file_path = os.path.join(os.getcwd(), file_name)
+		self.file_name = os.path.basename(file_name)
+		if bool(os.path.dirname(file_name)):
+			self.file_path = file_name
+		else:
+			self.file_path = os.path.join(os.getcwd(), file_name)
 		self.ext = file_name.split('.')[-1]
 		self.uuid = str(uuid.uuid4())
 		self.conn = None
@@ -78,6 +81,7 @@ class Dialogue:
 				data_type_name = self.conn.recv(HEADER)
 			data_type_name = bin_conv(data_type_name, str)
 			data_type = data_type_dict[data_type_name]
+			self.send(True)
 		else:
 			data_type = set_data_type
 

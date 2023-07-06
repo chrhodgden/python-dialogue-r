@@ -25,74 +25,31 @@ display_msg <- function(...) {
     )
 }
 
-add_missing_bits <- function(bits, base = 8) {
-	missing_bits <- length(bits) %% base
-	if (missing_bits > 0) {
-		missing_bits <- rep(as.raw(00), times = base - missing_bits)
-		bits <- c(bits, missing_bits)
-	}
-	return(bits)
-}
-
-bin_conv <- function(data, data_type_name = NA) {
-	conv_data <- NA
-	# convert to binary
-	if (is.character(data) && is.na(data_type_name)) {
-		conv_data <- charToRaw(data)
-		conv_data <- rawToBits(conv_data)
-	} else if (is.integer(data) && is.na(data_type_name)) {
-		conv_data <- as.raw(data)
-		conv_data <- rawToBits(conv_data)
-	} else if (is.logical(data) && is.na(data_type_name)) {
-		conv_data <- as.raw(data)
-		conv_data <- rawToBits(conv_data)
-	} else if (is.double(data) && is.na(data_type_name)) {
-		conv_data <- as.raw(data)
-		conv_data <- rawToBits(conv_data)
-	# convert from binary
-	} else if (is.raw(data) && data_type_name == "character") {
-		conv_data <- add_missing_bits(data)
-		conv_data <- packBits(conv_data, "raw")
-		conv_data <- rawToChar(conv_data)
-	} else if (is.raw(data) && data_type_name == "integer") {
-		conv_data <- add_missing_bits(data)
-		conv_data <- packBits(conv_data, "raw")
-		conv_data <- as.integer(conv_data)
-	} else if (is.raw(data) && data_type_name == "logical") {
-		conv_data <- add_missing_bits(data)
-		conv_data <- packBits(conv_data, "raw")
-		conv_data <- as.logical(conv_data)
-	} else if (is.raw(data) && data_type_name == "double") {
-		conv_data <- add_missing_bits(data)
-		conv_data <- packBits(conv_data, "raw")
-		conv_data <- as.double(conv_data)
-	}
-	return(conv_data)
-}
-
 # may not need to pass connection if it will only be 1 per dialogue
 send <- function(conn, data, send_data_type = FALSE) {
 	if (send_data_type) {
 		data_type_name <- typeof(data)
-		data_type_name <- bin_conv(data_type_name)
 		writeBin(data_type_name, conn)
 	}
-	bin_data <- bin_conv(data)
-	writeBin(bin_data, conn)
+	writeBin(data, conn)
 }
 
 # may not need to pass connection if it will only be 1 per dialogue
 # I still want to consolidate the recv_data_type and set_data_type args
 recv <- function(conn, recv_data_type = FALSE, set_data_type = "character") {
 	if (recv_data_type) {
-		suppressWarnings(data_type_name <- readBin(conn, "raw", HEADER))
-		while (length(data_type_name) == 0) {
-			suppressWarnings(data_type_name <- readBin(conn, "raw", HEADER))
+		suppressWarnings(data_type_bin <- readBin(conn, "raw", HEADER))
+		while (length(data_type_bin) == 0) {
+			suppressWarnings(data_type_bin <- readBin(conn, "raw", HEADER))
 		}
-		data_type_name <- bin_conv(data_type_name, "character")
-		data_type_name <- data_type_vect[data_type_name]
+		display_msg('data_type_bin', data_type_bin)
+		data_type_name <- readBin(data_type_bin, "character")
+		display_msg('data_type_name', data_type_name, '-')
+		data_type <- data_type_vect[data_type_name]
+		display_msg('data_type', data_type)
+		send(con, TRUE)
 	} else {
-		data_type_name <- set_data_type
+		data_type <- set_data_type
 	}
 
 	suppressWarnings(data <- readBin(conn, "raw", HEADER))
@@ -100,7 +57,7 @@ recv <- function(conn, recv_data_type = FALSE, set_data_type = "character") {
 		suppressWarnings(data <- readBin(conn, "raw", HEADER))
 	}
 
-	data <- bin_conv(data, data_type_name)
+	data <- readBin(data, data_type)
 
 	return(data)
 }
@@ -133,18 +90,24 @@ import_variable <- function() {
 
 evaluate_expression <- function() {
 	arg_count <- recv(con, FALSE, "integer")
+	display_msg('arg_count', arg_count)
 	send(con, TRUE)
 	kwarg_count <- recv(con, FALSE, "integer")
 	send(con, TRUE)
 	method_name <- recv(con, FALSE, "character")
+	display_msg('method_name', method_name)
 	send(con, TRUE)
 	args <- list()
+	#display_msg('args', args)
 	if (arg_count > 0) {
 		for (i in 1:arg_count) {
+		#display_msg('args', args)
 		args <- c(args, recv(con, TRUE))
+		args[1]
 		send(con, TRUE)
 		}
 	}
+	#display_msg('args', args)
 	kwargs <- list()
 	if (kwarg_count > 0) {
 		keys <- c()
@@ -172,6 +135,7 @@ send(con, TRUE)
 cmd_int <- -1
 while (cmd_int != 0) {
 	cmd_int <- recv(con, FALSE, "integer")
+	display_msg('cmd_int', cmd_int)
 	if (cmd_int == 1){
 		send(con, TRUE)
 		import_variable()

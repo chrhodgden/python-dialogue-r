@@ -34,7 +34,7 @@ class Dialogue:
 			self.open()
 
 	def execute_context_script(self):
-		context_file = __file__.replace('__init__.py', 'context_script.r')
+		context_file = __file__.replace('__init__.py', 'dialoguer.r')
 
 		subprocess.run(
 			f'Rscript {context_file} {self.uuid} {self.file_path}',
@@ -100,7 +100,7 @@ class Dialogue:
 		return val
 
 	def assign_variable(self, var_name, var_val):
-		self.send(3)
+		self.send(2)
 		recv_chk = self.recv(set_data_type=bool)
 		self.send(var_name, False)
 		recv_chk = self.recv(set_data_type=bool)
@@ -108,7 +108,7 @@ class Dialogue:
 		recv_chk = self.recv(set_data_type=bool)
 
 	def evaluate_expression(self, method_name, *args, **kwargs):
-		self.send(2)
+		self.send(3)
 		recv_chk = self.recv(set_data_type=bool)
 		#send number of arguments
 		self.send(len(args))
@@ -132,6 +132,19 @@ class Dialogue:
 		result = self.recv(True)
 		return result
 
+	def save_environment(self, file_name = None):
+		self.send(4)
+		recv_chk = self.recv(set_data_type=bool)
+		
+		if file_name == None:
+			save_name = self.file_path.replace('.r', '.RData')
+		elif bool(os.path.dirname(file_name)):
+			save_name = file_name
+		else:
+			save_name = os.path.join(os.getcwd(), file_name)
+
+		self.send(save_name, False)
+		recv_chk = self.recv(set_data_type=bool)
 
 	def close(self):
 		self.send(0)

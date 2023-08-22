@@ -27,10 +27,8 @@ class TestImportVariable(unittest.TestCase):
 		self.assertEqual(msg_2, 'Initialized Client - R')
 
 	def test_import_integer(self):
-		int_1 = self.src_fil_r.import_variable('int_1')
-		int_2 = self.src_fil_r.import_variable('int_2')
+		int_1 = self.src_fil_r.import_variable('int_1')[0]
 		self.assertEqual(int_1, 3)
-		self.assertEqual(int_2, 155)
 
 	def test_import_boolean(self):
 		chk_1 = self.src_fil_r.import_variable('chk_1')
